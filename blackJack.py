@@ -1,7 +1,17 @@
+"""
+A Blackjack game using classes
+"""
+
 import random
 
+# Constants
 suits = ["Spades","Hearts","Diamonds","Clubs"]
 ranks = [2,3,4,5,6,7,8,9,10,"Jack","Queen","King","Ace"]
+
+# Variables
+players=[]
+
+
 
 class Card():
     
@@ -85,8 +95,6 @@ Takes a card from the deck instance and addds it to this hand
         elif self.value > 21 and not self.aces:
             self.busted = True
             print("game over! Looks like you busted with all your cards adding up to:", self.value)
-        else:
-            print(self.aces,self.value)
         
         
 
@@ -97,6 +105,13 @@ class Dealer(Hand):
     def __init__(self):
         self.hideCards= True
         super().__init__()
+
+    def __str__(self):
+        while self.hideCards:
+            return ("\nThe dealer is showing the "+ str(self.holding[1]))
+        else:
+            return ("\n The dealer has "+ str(self.value))
+
         
 
 #Ask the Player for their bet
@@ -109,9 +124,56 @@ class Dealer(Hand):
 #If a Player Stands, play the Dealer's hand. The dealer will always Hit until the Dealer's value meets or exceeds 17
 #Determine the winner and adjust the Player's chips accordingly
 #Ask the Player if they'd like to play again
+
+def askPlayersPlaying():
+    """
+Asks and returns how many players are going to play
+    """
+
+    while True:
+        try:
+            numPlayer= int(input("How many player? There can be between 1 and 5"))
+
+        except:
+            print("That is not a valid choice")
+            continue
+    
+        return numPlayer
+
+def askPlayerName():
+    """
+Ask and returns player name
+    """
+    name=input("\nwhat is your name?").lower()
+    return name.capitalize()
         
-        
-deck=Deck()
-dealer=Dealer()
-dealer.addCard(deck.giveCard())
-dealer.addCard(deck.giveCard())
+def addPlayers():
+    """
+appends players to the list players[]
+    """
+    numPlayers=askPlayersPlaying()
+    i=0
+    while i < numPlayers:
+        players.append(askPlayerName())
+        i +=1
+
+
+
+
+
+def main():
+    gameOn= True
+    
+
+    while gameOn:
+        gameOn
+        deck=Deck()
+        dealer=Dealer()
+        addPlayers()
+        dealer.addCard(deck.giveCard())
+        dealer.addCard(deck.giveCard())
+        print(dealer)
+        dealer.hideCards= False
+        print(dealer)
+        gameOn=False
+main()
