@@ -1,124 +1,103 @@
-"""
-Milestone Project 2 - Blackjack Game
-In this milestone project you will be creating a Complete BlackJack Card Game in Python.
-
-Here are the requirements:
-
-You need to create a simple text-based BlackJack game
-The game needs to have one player versus an automated dealer.
-The player can stand or hit.
-The player must be able to pick their betting amount.
-You need to keep track of the player's total money.
-You need to alert the player of wins, losses, or busts, etc...
-"""
-
-#imported modules
 import random
 
-#varibles and constants
-suits = ('Hearts', 'Diamonds', 'Spades', 'Clubs')
-ranks = (2,3,4,5,6,7,8,9,10,"J","Q","K","A")
+suits = ["Spades","Hearts","Diamonds","Clubs"]
+ranks = [2,3,4,5,6,7,8,9,10,"Jack","Queen","King","Ace"]
 
-def ask_name():
-	answer= None
-	while not answer:
-		answer= input("\nWhat is your name?")
-	return answer
-
-class Card:
-
-    def __init__(self,suit,rank):
-        self.suit = suit
-        self.rank = rank
-        self.value = self.value()
+class Card():
+    
+    def __init__(self, rank, suit):
+        self.rank= rank
+        self.suit= suit
+        self.isAce= False
+        self.value= self.decideValue(self.rank)
+    
+    def __repr__(self):
+        return str(self.rank)+" of " +self.suit
+    
+    def decideValue(self,cardRank):
+        if type(cardRank) == int:
+            return cardRank
+        elif cardRank in ["Jack","Queen","King"]:
+            return 10
+        else:
+            self.isAce= True
+            return 11
+        
+class Deck():
+    
+    def __init__(self):
+        self.cards=[]
+        self.populateDeck()#Create a deck of 52 cards
+        self.ShuffleDeck()#Shuffle the deck
+        
+    def __str__(self):
+        return "\nThe number of cards left in the deck is: "+str(len(self.cards))
+    
+    def ShuffleDeck(self):
+        """
+Shuffles the deck of cards
+"""
+        random.shuffle(self.cards)
+        print("\n A new deck of cards have been created, shuffled, and is ready to deal!")
+        
+    def populateDeck(self):
+        """
+Creates the deck of cards
+"""
+        for suit in suits:
+            for rank in ranks:
+                self.cards.append(Card(rank,suit))
+                
+    def giveCard(self):
+        """
+Takes the top card of the deck and returns it
+"""
+        return self.cards.pop()
+                
+                
+class Hand():
+    
+    def __init__(self):
+        self.holding= []
+        self.value= 0
+        self.aces= 0
+        self.busted= False
+        
+    def addCard(self,toAdd):
+        """
+Takes a card from the deck instance and addds it to this hand
+"""
+        self.holding.append(toAdd)
+        self.value += toAdd.value
+        if toAdd.isAce:
+            self.aces += 1
+        self.countHand()
+    
+    def reviewHand(self):
+        size= len(self.holding)
+        print("\n Cards in hand: \n",size)
+        
+    def countHand(self):
+        if self.value > 21 and self.aces:
+            self.value -= 10
+            self.aces -= 1
+            print("\nHad to take away 10\nNew value is:",self.value)
+        elif self.value > 21 and not self.aces:
+            self.busted = True
+            print("game over! Looks like you busted with all your cards adding up to:", self.value)
+        else:
+            print(self.aces,self.value)
+        
         
 
-    def __repr__(self):
-    	return  self.rank + ' of ' + self.suit
 
 
-    def value(self):
-    	"""
-Used during creation of the card to decide its value
-    	"""
-    	if self.rank in ["J","Q","K"]:
-    		return 10
-    	elif self.rank == "A":
-    		return 11
-    	elif self.rank in range(2, 11):
-    		self.rank = str(self.rank)
-    		return int(self.rank)
-
-
-class Deck():
-
-	def __init__(self):
-		#Create a deck of 52 cards
-		self.deck=[]
-		for suit in suits:
-			for rank in ranks:
-				self.deck.append(Card(suit, rank))
-		print("The deck is now created")
-
-	def __str__(self):
-		length=str(len(self.deck))
-		return ("There are "+length+" cards in the deck")
-
-	def shuffle(self):
-		#Shuffle the deck
-		random.shuffle(self.deck)
-		print("\nThe deck is now shffled\n")
-
-	def showDeck(self):
-		"""
-Prints each card in the deck
-		"""
-		for card in self.deck:
-			x=card
-			print(x)
-
-	def topCard(self):
-		"""
-takes the top card from the deck and returns it
-		"""
-		card=self.deck.pop(0)
-		value=card.value
-		print(f"{card} is the top card and it is worth {value}")
-		return (card,value)
-
-
-class Hand():
-
-	def __init__(self):
-		self.cards = []
-		self.value = 0
-
-	def __repr__(self):
-		answer=""
-		for card in self.cards:
-			answer += str(card) + " "
-		return answer
-
-	def addCard(self,toAdd):
-		self.cards.append(toAdd[0])
-		self.value += toAdd[1]
-
-	def handInfo(self):
-		print(f"\n{len(self.cards)} cards in this hand worth {self.value}:\n{self.cards}")
-
-
-class Player(Hand):
-
-	def __init__(self):
-		self.name = ask_name()
-		self.chips = 100
-
-deck = Deck()
-deck.shuffle()
-print(deck)
-player1=Player()
-player1.handInfo()
-
+class Dealer(Hand):
+    
+    def __init__(self):
+        self.hideCards= True
+        super().__init__()
+        
 
 #Ask the Player for their bet
 #Make sure that the Player's bet does not exceed their available chips
@@ -130,3 +109,9 @@ player1.handInfo()
 #If a Player Stands, play the Dealer's hand. The dealer will always Hit until the Dealer's value meets or exceeds 17
 #Determine the winner and adjust the Player's chips accordingly
 #Ask the Player if they'd like to play again
+        
+        
+deck=Deck()
+dealer=Dealer()
+dealer.addCard(deck.giveCard())
+dealer.addCard(deck.giveCard())
