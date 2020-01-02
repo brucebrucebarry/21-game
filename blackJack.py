@@ -18,39 +18,39 @@ class Card():
     def __init__(self, rank, suit):
         self.rank= rank
         self.suit= suit
-        self.isAce= False
-        self.value= self.decideValue(self.rank)
+        self.is_ace= False
+        self.value= self.decide_value(self.rank)
     
     def __repr__(self):
         return str(self.rank)+" of " +self.suit
     
-    def decideValue(self,cardRank):
-        if type(cardRank) == int:
-            return cardRank
-        elif cardRank in ["Jack","Queen","King"]:
+    def decide_value(self,card_rank):
+        if type(card_rank) == int:
+            return card_rank
+        elif card_rank in ["Jack","Queen","King"]:
             return 10
         else:
-            self.isAce= True
+            self.is_ace= True
             return 11
         
 class Deck():
     
     def __init__(self):
         self.cards=[]
-        self.populateDeck()#Create a deck of 52 cards
-        self.ShuffleDeck()#Shuffle the deck
+        self.populate_deck()#Create a deck of 52 cards
+        self.Shuffle_deck()#Shuffle the deck
         
     def __str__(self):
         return "\nThe number of cards left in the deck is: "+str(len(self.cards))
     
-    def ShuffleDeck(self):
+    def Shuffle_deck(self):
         """
 Shuffles the deck of cards
 """
         random.shuffle(self.cards)
         print("\n A new deck of cards have been created, shuffled, and is ready to deal!")
         
-    def populateDeck(self):
+    def populate_deck(self):
         """
 Creates the deck of cards
 """
@@ -58,7 +58,7 @@ Creates the deck of cards
             for rank in ranks:
                 self.cards.append(Card(rank,suit))
                 
-    def giveCard(self):
+    def give_card(self):
         """
 Takes the top card of the deck and returns it
 """
@@ -73,21 +73,21 @@ class Hand():
         self.aces= 0
         self.busted= False
         
-    def addCard(self,toAdd):
+    def addCard(self,to_add):
         """
 Takes a card from the deck instance and addds it to this hand
 """
-        self.holding.append(toAdd)
-        self.value += toAdd.value
-        if toAdd.isAce:
+        self.holding.append(to_add)
+        self.value += to_add.value
+        if to_add.is_ace:
             self.aces += 1
-        self.countHand()
+        self.count_hand()
     
-    def reviewHand(self):
+    def review_hand(self):
         size= len(self.holding)
         print("\n Cards in hand: \n",size)
         
-    def countHand(self):
+    def count_hand(self):
         if self.value > 21 and self.aces:
             self.value -= 10
             self.aces -= 1
@@ -103,11 +103,11 @@ Takes a card from the deck instance and addds it to this hand
 class Dealer(Hand):
     
     def __init__(self):
-        self.hideCards= True
+        self.hide_cards= True
         super().__init__()
 
     def __str__(self):
-        while self.hideCards:
+        while self.hide_cards:
             return ("\nThe dealer is showing the "+ str(self.holding[1]))
         else:
             return ("\n The dealer has "+ str(self.value))
@@ -116,16 +116,16 @@ class Dealer(Hand):
 class Player(Hand):
 
     def __init__(self, name, chips= 100):
-        self.playerName = name
+        self.player_name = name
         self.chips = chips
         self.bet = None
         super().__init__()
     
     def __str__(self):
         if self.bet:
-            answer= self.playerName+" has a hand value of: "+str(self.value)+"\nThey have "+str(self.chips)+" chips with a bet of "+str(self.bet)
+            answer= self.player_name+" has a hand value of: "+str(self.value)+"\nThey have "+str(self.chips)+" chips with a bet of "+str(self.bet)
         else:
-            answer= self.playerName+" has a hand value of: "+str(self.value)+"\nThey have "+str(self.chips)+" chips with no monry bet yet"
+            answer= self.player_name+" has a hand value of: "+str(self.value)+"\nThey have "+str(self.chips)+" chips with no monry bet yet"
         return  answer
 
     def showBet(self):
@@ -134,40 +134,46 @@ prints the players bet and balence, if either is missing it will print what it h
         """
         print(f"")
 
-def askPlayersPlaying():
+def ask_players_playing():
     """
 Asks and returns how many players are going to play
     """
 
     while True:
         try:
-            numPlayer= int(input("How many player? There can be between 1 and 5"))
+            num_player= int(input("How many player? There can be between 1 and 5"))
 
         except:
             print("That is not a valid choice")
             continue
     
-        return numPlayer
+        return num_player
+        
+    else:
+        print("\nLooks like we already have a full table. No new players will be added and we will continue playing with:")
+        show_player_values()
+        return 0
+        
 
-def askPlayerName():
+def ask_player_name():
     """
 Ask and returns player name
     """
     name=input("\nwhat is your name?").lower()
     return name.capitalize()
         
-def addPlayers():
+def add_players():
     """
 appends players to the list players[]
     """
-    numPlayers=askPlayersPlaying()
+    num_players=ask_players_playing()
     i=0
-    while i < numPlayers:
+    while i < num_players:
 
-        players.append(Player(askPlayerName()))
+        players.append(Player(ask_player_name()))
         i +=1
 
-def showPlayerValues():
+def show_player_values():
     """
 prints the card values for all players (Not the dealer)
     """
@@ -183,8 +189,8 @@ def main():
     while game_on:
         deck=Deck() #creates the deck
         dealer=Dealer() #creates the dealer
-        addPlayers() #asks how many players and names them
-        showPlayerValues()
+        add_players() #asks how many players and names them
+        show_player_values()
         #placeBets() 
 #Ask the Player for their bet
 #Make sure that the Player's bet does not exceed their available chips
