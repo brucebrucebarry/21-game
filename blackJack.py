@@ -115,15 +115,24 @@ class Dealer(Hand):
 
 class Player(Hand):
 
-    def __init__(self,name):
+    def __init__(self, name, chips= 100):
         self.playerName = name
+        self.chips = chips
+        self.bet = None
         super().__init__()
     
     def __str__(self):
-        answer= self.playerName+" has a hand value of: "+str(self.value)
+        if self.bet:
+            answer= self.playerName+" has a hand value of: "+str(self.value)+"\nThey have "+str(self.chips)+" chips with a bet of "+str(self.bet)
+        else:
+            answer= self.playerName+" has a hand value of: "+str(self.value)+"\nThey have "+str(self.chips)+" chips with no monry bet yet"
         return  answer
 
-
+    def showBet(self):
+        """
+prints the players bet and balence, if either is missing it will print what it has
+        """
+        print(f"")
 
 def askPlayersPlaying():
     """
@@ -169,14 +178,14 @@ prints the card values for all players (Not the dealer)
 
 
 def main():
-    gameOn= True
+    game_on= True
     
-
-    while gameOn:
+    while game_on:
         deck=Deck() #creates the deck
         dealer=Dealer() #creates the dealer
         addPlayers() #asks how many players and names them
-        placeBets() 
+        showPlayerValues()
+        #placeBets() 
 #Ask the Player for their bet
 #Make sure that the Player's bet does not exceed their available chips
         #openingDeal()
@@ -192,4 +201,5 @@ def main():
 #Determine the winner and adjust the Player's chips accordingly
         #playAgain()
 #Ask the Player if they'd like to play again
+        game_on= False
 main()
