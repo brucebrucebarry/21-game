@@ -112,18 +112,18 @@ class Dealer(Hand):
         else:
             return ("\n The dealer has "+ str(self.value))
 
-        
 
-#Ask the Player for their bet
-#Make sure that the Player's bet does not exceed their available chips
-#Deal two cards to the Dealer and two cards to the Player
-#Show only one of the Dealer's cards, the other remains hidden
-#Show both of the Player's cards
-#Ask the Player if they wish to Hit, and take another card
-#If the Player's hand doesn't Bust (go over 21), ask if they'd like to Hit again.
-#If a Player Stands, play the Dealer's hand. The dealer will always Hit until the Dealer's value meets or exceeds 17
-#Determine the winner and adjust the Player's chips accordingly
-#Ask the Player if they'd like to play again
+class Player(Hand):
+
+    def __init__(self,name):
+        self.playerName = name
+        super().__init__()
+    
+    def __str__(self):
+        answer= self.playerName+" has a hand value of: "+str(self.value)
+        return  answer
+
+
 
 def askPlayersPlaying():
     """
@@ -154,9 +154,16 @@ appends players to the list players[]
     numPlayers=askPlayersPlaying()
     i=0
     while i < numPlayers:
-        players.append(askPlayerName())
+
+        players.append(Player(askPlayerName()))
         i +=1
 
+def showPlayerValues():
+    """
+prints the card values for all players (Not the dealer)
+    """
+    for player in players:
+        print(player)
 
 
 
@@ -166,14 +173,23 @@ def main():
     
 
     while gameOn:
-        gameOn
-        deck=Deck()
-        dealer=Dealer()
-        addPlayers()
-        dealer.addCard(deck.giveCard())
-        dealer.addCard(deck.giveCard())
-        print(dealer)
-        dealer.hideCards= False
-        print(dealer)
-        gameOn=False
+        deck=Deck() #creates the deck
+        dealer=Dealer() #creates the dealer
+        addPlayers() #asks how many players and names them
+        placeBets() 
+#Ask the Player for their bet
+#Make sure that the Player's bet does not exceed their available chips
+        #openingDeal()
+#Deal two cards to the Dealer and two cards to the Player
+#Show only one of the Dealer's cards, the other remains hidden
+#Show both of the Player's cards
+        #playersRound()
+#Ask the Player if they wish to Hit, and take another card
+#If the Player's hand doesn't Bust (go over 21), ask if they'd like to Hit again.
+        #dealersRound()
+#If a Player Stands, play the Dealer's hand. The dealer will always Hit until the Dealer's value meets or exceeds 17
+        #payDay()
+#Determine the winner and adjust the Player's chips accordingly
+        #playAgain()
+#Ask the Player if they'd like to play again
 main()
