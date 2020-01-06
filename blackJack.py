@@ -41,6 +41,7 @@ class Deck():
         self.cards=[]
         self.populate_deck()#Create a deck of 52 cards
         self.Shuffle_deck()#Shuffle the deck
+        print("\n A new deck of cards have been created")
         
     def __str__(self):
         return "\nThe number of cards left in the deck is: "+str(len(self.cards))
@@ -50,7 +51,7 @@ class Deck():
 Shuffles the deck of cards
 """
         random.shuffle(self.cards)
-        print("\n A new deck of cards have been created, shuffled, and is ready to deal!")
+        print("\nThe deck is shuffled and is ready to deal")
         
     def populate_deck(self):
         """
@@ -87,17 +88,23 @@ Takes a card from the deck instance and addds it to this hand
         self.count_hand()
     
     def review_hand(self):
+        """
+        prints number of cards in this hand
+        """
         size=len(self.holding)
         print("\n Cards in hand: \n",size)
         
     def count_hand(self):
+        """
+        Once the players hand goes over 21: if Aces adjusts the hands value, else causes them to bust
+        """
         if self.value > 21 and self.aces:
             self.value -= 10
             self.aces -= 1
-            print("\nHad to take away 10\nNew value is:",self.value)
+            print("\nThis Ace is worth 1 because you would otherwise bust")
         elif self.value > 21 and not self.aces:
             self.busted=True
-            print(f"\n\n\nLooks like you busted with all your cards adding up to: {self.value}. Here are your cards:", self.holding); time.sleep(2)
+            print(f"\n\nLooks like you busted with all your cards adding up to: {self.value}. Here are your cards:", self.holding); time.sleep(1)
 
 
     def return_all_cards(self):
@@ -105,7 +112,16 @@ Takes a card from the deck instance and addds it to this hand
         returns the top card in the players hand (mainly used to rest the game for a new turn)
         """
         deck.cards.append(self.holding.pop())
-        
+
+
+    def reset_values(self):
+        """
+        resets the values of each hand to allow a new game to be played
+        """
+        self.value=0
+        self.aces=0
+        self.busted=False
+        self.done=False
         
 
 
@@ -138,12 +154,34 @@ class Dealer(Hand):
         print(f"\n\nNow that all the players have had their turn it is time for the dealer to play"); time.sleep(2)
         while self.value in range(0,17) and not self.busted:
             print(f"\nThe dealer has a card value of {self.value} and is holding:",self.holding)
-            print("\nThis means the dealer must hit."); time.sleep(2)
+            print("\nThis means the dealer must hit until they reach at least 17"); time.sleep(1)
             self.add_card(deck.give_card())
+        if self.value in range(17,22):
+            print(f"\nThe dealer will stay at {self.value}. They are holding:",self.holding)
+            time.sleep(2)
 
 
+    def count_hand(self):
+        """
+        Once the players hand goes over 21: if Aces adjusts the hands value, else causes them to bust
+        """
+        if self.value > 21 and self.aces:
+            self.value -= 10
+            self.aces -= 1
+            print("\nAn Ace is now worth 1 because you would otherwise bust")
+        elif self.value > 21 and not self.aces:
+            self.busted=True
+            print(f"\n\n\nThe dealer has busted with all their cards adding up to: {self.value}. Here are your cards:", self.holding); time.sleep(2)
 
 
+    def reset_values(self):
+        """
+        resets the values of each hand to allow a new game to be played
+        """
+        self.value=0
+        self.aces=0
+        self.busted=False
+        self.hide_cards=True
 
 class Player(Hand):
 
@@ -153,8 +191,7 @@ class Player(Hand):
         self.chips=chips
         self.bet=None
         #self.double_down=False
-
-        super().__init__()
+        super().__init__() #allows inheritance of variables from Hand(class)
     
 
     def __str__(self):
@@ -171,6 +208,11 @@ class Player(Hand):
 
 
     def select_action(self):
+        """
+        ASks players if they want to hit or stay *add doubledown later
+
+        returns their response.lower() 
+        """
         answer=None
         while answer not in ["hit","stay"]:
             answer= input("Would you like to hit or stay?").lower()
@@ -189,7 +231,8 @@ class Player(Hand):
             if move == "hit":
                 print("\nGiving you another card")
                 self.add_card(deck.give_card())
-                print(f"You have been delt {self.holding[-1]}"); time.sleep(2)
+                if not self.busted:
+                    print(f"You have been delt:\nThe {self.holding[-1]}"); time.sleep(1)
             if move == "stay":
                 print(f"\nYou have decided to stay with a hand value of {self.value}")
                 self.done=True
@@ -218,13 +261,14 @@ class Player(Hand):
         Pays the bet amount to the player then zeros the bet amount
         """
         if multiplier == 1:
-            print(f"\nLooks like you pushed with the dealer, both of you have a hand value of {self.value} chips")
+            print(f"\n{self.player_name}Looks like you pushed with the dealer, both of you have a hand value of {self.value}. Your bet of {self.bet} chips will be returned to you.\n")
             self.chips += (self.bet*multiplier)
             self.bet=None
         elif multiplier == 2:
-            print(f"\nCongrads {self.player_name}, You have won with a hand value of {self.value}\n{self.bet} chips has been added to your chip stack\n")
+            print(f"\nCongrads {self.player_name}, You have won with a hand value of {self.value}. Your bet of {self.bet} chips has been added to your chip stack\n")
             self.chips += (self.bet*multiplier)
             self.bet=None
+
 
     def check_win(self):
         """
@@ -236,8 +280,11 @@ class Player(Hand):
             elif dealer.value == self.value:
                 self.pay_bet(1)
             else:
-                print(f"Sorry {self.player_name}, the dealer has {dealer.value} and you only have {self.value}. You have lost {self.bet} chips.")
+                print(f"\nSorry {self.player_name}, the dealer has {dealer.value} and you only have {self.value}. You have lost {self.bet} chips.")
                 self.bet=None
+        elif self.busted:
+            print(f"\n{self.player_name} busted with a hand value of {self.value}. You lost {self.bet} chips.")
+            self.bet=None
         elif dealer.busted and not self.busted:
             self.pay_bet(2)
 
@@ -309,8 +356,10 @@ def pay_day():
     """
     Compares each player's hand value to the dealers to decided if they win. If they did not loss they are paid accordingly
     """
+    time.sleep(3)
     for player in players:
         player.check_win()
+        time.sleep(.5)
 
 
 def reset():
@@ -320,12 +369,7 @@ def reset():
     for player in players_plus_dealer:
         while player.holding:
             player.return_all_cards()
-        player.aces=0
-        player.value=0
-        player.busted=False
-        player.done=False
     deck.Shuffle_deck()
-    dealer.hide_cards=True
 
 
 def main():
@@ -340,7 +384,6 @@ def main():
         show_player_values()#Show both of the Player's cards
         betting_round()#Ask the Player if they wish to Hit, and take another card #If the Player's hand doesn't Bust (go over 21), ask if they'd like to Hit again. #If a Player Stands, play the Dealer's hand. The dealer will always Hit until the Dealer's value meets or exceeds 17
         pay_day()#Determine the winner and adjust the Player's chips accordingly
-        show_player_values()
         reset()#This will need to return all the cards to the deck and decide if any players do not have any chips left
         #play_again()#Ask the Player if they'd like to play again
         game_on= False
