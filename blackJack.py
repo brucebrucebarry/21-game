@@ -104,7 +104,8 @@ Takes a card from the deck instance and addds it to this hand
             print("\nThis Ace is worth 1 because you would otherwise bust")
         elif self.value > 21 and not self.aces:
             self.busted=True
-            print(f"\n\nLooks like you busted with all your cards adding up to: {self.value}. Here are your cards:", self.holding); time.sleep(1)
+            print(f"\n\nLooks like you busted with all your cards adding up to: {self.value}. Here are your cards:", self.holding)
+            thinking(2)
 
 
     def return_all_cards(self):
@@ -154,11 +155,12 @@ class Dealer(Hand):
         print(f"\n\nNow that all the players have had their turn it is time for the dealer to play"); time.sleep(2)
         while self.value in range(0,17) and not self.busted:
             print(f"\nThe dealer has a card value of {self.value} and is holding:",self.holding)
-            print("\nThis means the dealer must hit until they reach at least 17"); time.sleep(1)
+            print("\nThis means the dealer must hit until they reach at least 17")
+            thinking(2)
             self.add_card(deck.give_card())
         if self.value in range(17,22):
             print(f"\nThe dealer will stay at {self.value}. They are holding:",self.holding)
-            time.sleep(2)
+            thinking(2)
 
 
     def count_hand(self):
@@ -171,7 +173,7 @@ class Dealer(Hand):
             print("\nAn Ace is now worth 1 because you would otherwise bust")
         elif self.value > 21 and not self.aces:
             self.busted=True
-            print(f"\n\n\nThe dealer has busted with all their cards adding up to: {self.value}. Here are your cards:", self.holding); time.sleep(2)
+            print(f"\n\n\nThe dealer has busted with all their cards adding up to: {self.value}. Here are your cards:", self.holding)
 
 
     def reset_values(self):
@@ -232,7 +234,8 @@ class Player(Hand):
                 print("\nGiving you another card")
                 self.add_card(deck.give_card())
                 if not self.busted:
-                    print(f"You have been delt:\nThe {self.holding[-1]}"); time.sleep(1)
+                    print(f"You have been delt:\nThe {self.holding[-1]}")
+                    thinking(2)
             if move == "stay":
                 print(f"\nYou have decided to stay with a hand value of {self.value}")
                 self.done=True
@@ -356,10 +359,10 @@ def pay_day():
     """
     Compares each player's hand value to the dealers to decided if they win. If they did not loss they are paid accordingly
     """
-    time.sleep(3)
+    thinking(1)
     for player in players:
         player.check_win()
-        time.sleep(.5)
+        thinking(1)
 
 
 def reset():
@@ -369,8 +372,34 @@ def reset():
     for player in players_plus_dealer:
         while player.holding:
             player.return_all_cards()
+        else:
+            player.reset_values()
+
     deck.Shuffle_deck()
 
+
+def play_again():
+    """
+    Returns True if they want to play again
+    """
+    answer=None
+    while answer not in ["yes","no"]:
+        answer= input("\n\nDo you want to play again? (yes or no)")
+    if answer == "yes":
+        return True
+    if answer == "no":
+        return False
+
+
+def thinking(seconds):
+    """
+    prints a dot waits a second and continues until the time passed to this function
+    """
+    i=0
+    while i < seconds:
+        print(".")
+        time.sleep(1)
+        i+=1
 
 def main():
     game_on=True
@@ -378,15 +407,16 @@ def main():
     
     players_plus_dealer.append(dealer)
     while game_on:
+        print (deck)
+        show_player_values()
         place_bets()#Ask the Player for their bet #Make sure that the Player's bet does not exceed their available chips
-        dealer.deal_cards()
+        dealer.deal_cards()#
         print(dealer)#Show only one of the Dealer's cards, the other remains hidden
         show_player_values()#Show both of the Player's cards
         betting_round()#Ask the Player if they wish to Hit, and take another card #If the Player's hand doesn't Bust (go over 21), ask if they'd like to Hit again. #If a Player Stands, play the Dealer's hand. The dealer will always Hit until the Dealer's value meets or exceeds 17
         pay_day()#Determine the winner and adjust the Player's chips accordingly
         reset()#This will need to return all the cards to the deck and decide if any players do not have any chips left
-        #play_again()#Ask the Player if they'd like to play again
-        game_on= False
+        game_on= play_again()#Ask the Player if they'd like to play again
 
     def current_game():
         """
