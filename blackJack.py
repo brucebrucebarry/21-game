@@ -12,6 +12,7 @@ ranks=[2,3,4,5,6,7,8,9,10,"Jack","Queen","King","Ace"]
 # Variables
 players=[]
 players_plus_dealer=[]
+lossers=[]
 
 
 
@@ -125,6 +126,15 @@ Takes a card from the deck instance and addds it to this hand
         self.done=False
         
 
+    def have_chips(self):
+        """
+        makes sure the player has chips and can bet for the next hand
+        """
+        if self.chips >0:
+            return False, self
+        else:
+            return True, self
+
 
 
 class Dealer(Hand):
@@ -184,6 +194,12 @@ class Dealer(Hand):
         self.aces=0
         self.busted=False
         self.hide_cards=True
+
+
+    def have_chips(self):
+        return False, self
+
+
 
 class Player(Hand):
 
@@ -264,7 +280,7 @@ class Player(Hand):
         Pays the bet amount to the player then zeros the bet amount
         """
         if multiplier == 1:
-            print(f"\n{self.player_name}Looks like you pushed with the dealer, both of you have a hand value of {self.value}. Your bet of {self.bet} chips will be returned to you.\n")
+            print(f"\n{self.player_name} Looks like you pushed with the dealer, both of you have a hand value of {self.value}. Your bet of {self.bet} chips will be returned to you.\n")
             self.chips += (self.bet*multiplier)
             self.bet=None
         elif multiplier == 2:
@@ -290,8 +306,6 @@ class Player(Hand):
             self.bet=None
         elif dealer.busted and not self.busted:
             self.pay_bet(2)
-
-
 
 
 
@@ -401,13 +415,34 @@ def thinking(seconds):
         time.sleep(1)
         i+=1
 
+
+def player_alive():
+    """
+    goes through players to see if they have chips to play the next hand.
+    If no chips they are removed from both players and players_plus_dealer.
+    They are also added tp lossers
+    """
+    for player in players_plus_dealer:
+        print("\n\n\nI am looping through",player)
+        kill, victum=player.have_chips()
+        if kill:
+            location= players.index(victum)
+            lossers.append(players.pop(location))
+            #players.pop(x) from players and remove from players_plus_dealer
+            print("\n\nThis player has got to go", victum, location)
+            players_plus_dealer.remove(victum)
+        else:
+            print("\n\nThis player is good",player)
+    print("\n\n\nHere are the lossers",lossers)
+
+
 def main():
     game_on=True
     add_players() #asks how many players and names them
     
     players_plus_dealer.append(dealer)
     while game_on:
-        print (deck)
+        player_alive()#Makes sure all players have chips and can play again
         show_player_values()
         place_bets()#Ask the Player for their bet #Make sure that the Player's bet does not exceed their available chips
         dealer.deal_cards()#
@@ -418,10 +453,10 @@ def main():
         reset()#This will need to return all the cards to the deck and decide if any players do not have any chips left
         game_on= play_again()#Ask the Player if they'd like to play again
 
-    def current_game():
-        """
-        Used for replaying game. Does not ask for players names
-        """
 deck=Deck() #creates the deck
 dealer=Dealer() #creates the dealer
 main()
+"""
+Still need to add logic for replay and checking if the player has money to play.
+As is, the game will be stuck in a loop asking for a bet even if a player has no money
+"""
